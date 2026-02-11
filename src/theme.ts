@@ -1,0 +1,36 @@
+export const theme = {
+  bg: '#1a1b26',
+  panelBg: '#24283b',
+  border: '#565f89',
+  text: '#c0caf5',
+  textMuted: '#565f89',
+  textDim: '#3b4261',
+  accent: '#7aa2f7',
+  accentPurple: '#bb9af7',
+  success: '#9ece6a',
+  error: '#f7768e',
+  warning: '#e0af68',
+  info: '#7dcfff',
+  selected: '#3d59a1',
+  selectedBg: '#283457',
+  input: {
+    bg: '#16161e',
+    focusedBg: '#1f2335',
+    cursor: '#9ece6a',
+  },
+} as const
+
+export const keybindings = {
+  up: ['up', 'k'],
+  down: ['down', 'j'],
+  select: ['return'],
+  toggle: ['space'],
+  back: ['escape'],
+  next: ['tab'],
+  prev: ['shift+tab'],
+  save: ['ctrl+s'],
+  quit: ['ctrl+c'],
+  apply: ['ctrl+a'],
+  refresh: ['ctrl+r'],
+  help: ['?'],
+} as const

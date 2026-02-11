@@ -1,12 +1,23 @@
 {
   "name": "repoprotector",
+  "version": "0.1.0",
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "bin": {
+    "repoprotector": "./index.ts"
+  },
+  "scripts": {
+    "start": "bun run index.ts",
+    "start:local": "bun run index.ts --local"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@opentui/core": "^0.1.79"
   }
 }
