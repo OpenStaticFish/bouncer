@@ -248,18 +248,18 @@ export async function runApp(localMode: boolean = false): Promise<void> {
         
       } else if (key.ctrl && key.name === 't') {
         showTemplates()
-        
+        return
       }
       container.handleKey(key)
       
     }
   }
   
-  const showTemplates = () => {
+  const showTemplates = async () => {
     clearScreen()
     state.screen = 'templates'
     updateBreadcrumb()
-    updateFooter('Load a template')
+    showLoading('Loading templates...')
     
     const container = createTemplateManager(
       renderer,
@@ -281,6 +281,11 @@ export async function runApp(localMode: boolean = false): Promise<void> {
     
     mainContent.add(container)
     currentScreenComponent = container
+    
+    await container.refresh()
+    hideLoading()
+    updateFooter('Load a template')
+    
     currentKeyHandler = async (key) => {
       await container.handleKey(key)
       

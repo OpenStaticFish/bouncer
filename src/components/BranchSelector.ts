@@ -60,14 +60,13 @@ export function createBranchSelector(
   container.add(select)
   container.add(helpText)
   
-  select.focus()
-  
   const setBranches = (branches: Branch[]) => {
     select.options = branches.map((branch) => ({
       name: branch.name,
       description: branch.protected ? '🔒 protected' : 'unprotected',
       value: branch.name,
     }))
+    select.focus()
   }
   
   return Object.assign(container, { setBranches, handleKey })

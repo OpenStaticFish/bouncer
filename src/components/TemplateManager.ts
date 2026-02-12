@@ -89,10 +89,10 @@ export function createTemplateManager(
   container.add(select)
   container.add(footer)
   
-  select.focus()
-  loadTemplates()
-  
-  const refresh = () => loadTemplates()
+  const refresh = async () => {
+    await loadTemplates()
+    select.focus()
+  }
   
   return Object.assign(container, { refresh, handleKey })
 }

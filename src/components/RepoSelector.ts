@@ -95,12 +95,11 @@ export function createRepoSelector(
   container.add(select)
   container.add(helpText)
   
-  select.focus()
-  
   const setRepos = (repos: Repository[]) => {
     state.repos = repos.map((repo) => ({ repo, selected: false }))
     updateSelectOptions(select, state.repos)
     updateCount()
+    select.focus()
   }
   
   return Object.assign(container, { setRepos, handleKey })

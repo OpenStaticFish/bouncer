@@ -64,8 +64,6 @@ export function createOrgSelector(
   container.add(select)
   container.add(helpText)
   
-  select.focus()
-  
   return { container, select }
 }
 
@@ -75,4 +73,5 @@ export function updateOrgOptions(select: SelectRenderable, orgs: Organization[])
     description: org.description || 'No description',
     value: org,
   }))
+  select.focus()
 }
