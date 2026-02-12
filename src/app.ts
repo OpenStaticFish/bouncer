@@ -1,4 +1,15 @@
 import { createCliRenderer, BoxRenderable, TextRenderable, SelectRenderable, type CliRenderer } from '@opentui/core'
+
+function logToFile(message: string) {
+  try {
+    const logPath = `${process.env.HOME}/.config/repoprotector/apply.log`
+    const timestamp = new Date().toISOString()
+    const entry = `[${timestamp}] ${message}\n`
+    Bun.write(logPath, entry).catch(() => {})
+  } catch (e) {
+    // Ignore logging errors
+  }
+}
 import type { Organization, Repository, Branch, BranchProtection, BranchProtectionInput, ApplyResult } from './types'
 import { theme } from './theme'
 import { getOrganizations, getOrgRepos, getRepoBranches, getBranchProtection, applyProtectionToMultiple, detectLocalRepo } from './api/github'
@@ -333,6 +344,8 @@ export async function runApp(localMode: boolean = false): Promise<void> {
         }))
         try {
           const results = await applyProtectionToMultiple(targets, state.proposedProtection)
+          logToFile(`Applied protection to ${targets.length} repo(s)`)
+          logToFile(JSON.stringify(state.proposedProtection, null, 2))
           state.results = results
           hideLoading()
           container.setResults(results)

@@ -2,6 +2,17 @@ import { BoxRenderable, TextRenderable, type CliRenderer } from '@opentui/core'
 import type { BranchProtection, BranchProtectionInput, ApplyResult } from '../types'
 import { theme } from '../theme'
 
+function logToFile(message: string) {
+  try {
+    const logPath = `${process.env.HOME}/.config/repoprotector/apply.log`
+    const timestamp = new Date().toISOString()
+    const entry = `[${timestamp}] ${message}\n`
+    Bun.write(logPath, entry).catch(() => {})
+  } catch (e) {
+    // Ignore logging errors
+  }
+}
+
 export type PreviewConfirmCallback = () => void
 export type PreviewCancelCallback = () => void
 
@@ -171,15 +182,21 @@ export function createPreviewPane(
     
     for (const result of state.results) {
       if (result.success) {
-        lines.push(`✓ ${result.repo.full_name}:${result.branch}`)
+        const msg = `✓ ${result.repo.full_name}:${result.branch}`
+        lines.push(msg)
+        logToFile(msg)
         success++
       } else {
-        lines.push(`✗ ${result.repo.full_name}:${result.branch} - ${result.error}`)
+        const msg = `✗ ${result.repo.full_name}:${result.branch} - ${result.error}`
+        lines.push(msg)
+        logToFile(msg)
         failed++
       }
     }
     
-    lines.push('', `Total: ${state.results.length} | Success: ${success} | Failed: ${failed}`)
+    const summary = `Total: ${state.results.length} | Success: ${success} | Failed: ${failed}`
+    lines.push('', summary)
+    logToFile(summary)
     
     const text = new TextRenderable(renderer, {
       id: 'results-text',
