@@ -459,7 +459,9 @@ export function createProtectionEditor(
   }
   
   const showWorkflowModal = () => {
-    if (state.workflows.length === 0) return
+    if (state.workflows.length === 0) {
+      return
+    }
     
     state.workflowItems = state.workflows.map((w) => {
       const alreadyAdded = state.protection.required_status_checks?.contexts?.includes(w.name) ?? false
@@ -471,19 +473,12 @@ export function createProtectionEditor(
     renderWorkflowModal()
   }
   
-  const hideWorkflowModal = () => {
-    state.showWorkflowModal = false
-    clearModalRows()
-  }
-  
-  let keyHandlerActive = true
-  
   const handleKey = (key: { name: string; shift: boolean; ctrl: boolean }) => {
-    if (!keyHandlerActive) return
-    
     if (state.showWorkflowModal) {
       if (key.name === 'escape') {
-        hideWorkflowModal()
+        state.showWorkflowModal = false
+        clearModalRows()
+        renderFields()
         return
       }
       
@@ -509,10 +504,13 @@ export function createProtectionEditor(
       }
       
       if (key.name === 'return' || key.name === 'enter') {
-        hideWorkflowModal()
+        state.showWorkflowModal = false
+        clearModalRows()
         const selected = state.workflowItems.filter(w => w.selected).map(w => w.workflow.name)
         if (selected.length > 0) {
           addWorkflowChecks(selected)
+        } else {
+          renderFields()
         }
         return
       }
