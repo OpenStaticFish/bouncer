@@ -1,6 +1,10 @@
-import { BoxRenderable, TextRenderable, type CliRenderer } from '@opentui/core'
-import type { BranchProtection, BranchProtectionInput, ApplyResult } from '../types'
+import { BoxRenderable, type CliRenderer, TextRenderable } from '@opentui/core'
 import { theme } from '../theme'
+import type {
+  ApplyResult,
+  BranchProtection,
+  BranchProtectionInput,
+} from '../types'
 
 function logToFile(message: string) {
   try {
@@ -8,7 +12,7 @@ function logToFile(message: string) {
     const timestamp = new Date().toISOString()
     const entry = `[${timestamp}] ${message}\n`
     Bun.write(logPath, entry).catch(() => {})
-  } catch (e) {
+  } catch (_e) {
     // Ignore logging errors
   }
 }
@@ -26,7 +30,7 @@ function formatValue(val: unknown, indent: string = ''): string[] {
     if (val.length === 0) return [`${indent}[]`]
     const lines: string[] = [`${indent}[`]
     for (const item of val) {
-      lines.push(...formatValue(item, indent + '  '))
+      lines.push(...formatValue(item, `${indent}  `))
     }
     lines.push(`${indent}]`)
     return lines
@@ -36,8 +40,8 @@ function formatValue(val: unknown, indent: string = ''): string[] {
     if (entries.length === 0) return [`${indent}{}`]
     const lines: string[] = [`${indent}{`]
     for (const [k, v] of entries) {
-      const subLines = formatValue(v, indent + '  ')
-      lines.push(`${subLines[0]?.replace(indent + '  ', indent + '  ' + k + ': ')}`)
+      const subLines = formatValue(v, `${indent}  `)
+      lines.push(`${subLines[0]?.replace(`${indent}  `, `${indent}  ${k}: `)}`)
       lines.push(...subLines.slice(1))
     }
     lines.push(`${indent}}`)
@@ -48,23 +52,25 @@ function formatValue(val: unknown, indent: string = ''): string[] {
 
 function diffProtection(
   current: BranchProtection | null,
-  proposed: BranchProtectionInput
+  proposed: BranchProtectionInput,
 ): { added: string[]; removed: string[]; changed: string[] } {
   const added: string[] = []
   const removed: string[] = []
   const changed: string[] = []
-  
+
   const keys = new Set([
     ...Object.keys(current || {}),
     ...Object.keys(proposed),
   ])
-  
+
   for (const key of keys) {
     if (key === 'url') continue
-    
-    const currentVal = current ? (current as unknown as Record<string, unknown>)[key] : undefined
+
+    const currentVal = current
+      ? (current as unknown as Record<string, unknown>)[key]
+      : undefined
     const proposedVal = (proposed as Record<string, unknown>)[key]
-    
+
     if (currentVal === undefined && proposedVal !== undefined) {
       added.push(key)
     } else if (currentVal !== undefined && proposedVal === undefined) {
@@ -73,14 +79,14 @@ function diffProtection(
       changed.push(key)
     }
   }
-  
+
   return { added, removed, changed }
 }
 
 export function createPreviewPane(
   renderer: CliRenderer,
   onConfirm: PreviewConfirmCallback,
-  onCancel: PreviewCancelCallback
+  onCancel: PreviewCancelCallback,
 ): BoxRenderable {
   const container = new BoxRenderable(renderer, {
     id: 'preview-pane',
@@ -90,13 +96,13 @@ export function createPreviewPane(
     backgroundColor: theme.panelBg,
     padding: 1,
   })
-  
+
   const title = new TextRenderable(renderer, {
     id: 'preview-title',
     content: 'Preview Changes',
     fg: theme.accent,
   })
-  
+
   const contentBox = new BoxRenderable(renderer, {
     id: 'preview-content',
     width: '100%',
@@ -105,20 +111,20 @@ export function createPreviewPane(
     backgroundColor: theme.bg,
     padding: 1,
   })
-  
+
   const footer = new BoxRenderable(renderer, {
     id: 'preview-footer',
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
   })
-  
+
   const helpText = new TextRenderable(renderer, {
     id: 'preview-help',
     content: 'Enter Apply  |  Esc Cancel',
     fg: theme.textMuted,
   })
-  
+
   const state: {
     current: BranchProtection | null
     proposed: BranchProtectionInput | null
@@ -130,10 +136,10 @@ export function createPreviewPane(
     results: [],
     mode: 'diff',
   }
-  
+
   const renderDiff = () => {
     contentBox.remove('diff-text')
-    
+
     if (!state.proposed) {
       const text = new TextRenderable(renderer, {
         id: 'diff-text',
@@ -143,10 +149,10 @@ export function createPreviewPane(
       contentBox.add(text)
       return
     }
-    
+
     const diff = diffProtection(state.current, state.proposed)
     const lines: string[] = []
-    
+
     if (diff.added.length > 0) {
       lines.push(`+ Added: ${diff.added.join(', ')}`)
     }
@@ -156,14 +162,14 @@ export function createPreviewPane(
     if (diff.changed.length > 0) {
       lines.push(`~ Changed: ${diff.changed.join(', ')}`)
     }
-    
+
     if (lines.length === 0) {
       lines.push('No changes detected')
     }
-    
+
     lines.push('', '--- Proposed Settings ---')
     lines.push(...formatValue(state.proposed, '').slice(1, 30))
-    
+
     const text = new TextRenderable(renderer, {
       id: 'diff-text',
       content: lines.join('\n'),
@@ -171,15 +177,15 @@ export function createPreviewPane(
     })
     contentBox.add(text)
   }
-  
+
   const renderResults = () => {
     contentBox.remove('results-text')
-    
+
     const lines: string[] = ['Apply Results:', '']
-    
+
     let success = 0
     let failed = 0
-    
+
     for (const result of state.results) {
       if (result.success) {
         const msg = `✓ ${result.repo.full_name}:${result.branch}`
@@ -193,11 +199,11 @@ export function createPreviewPane(
         failed++
       }
     }
-    
+
     const summary = `Total: ${state.results.length} | Success: ${success} | Failed: ${failed}`
     lines.push('', summary)
     logToFile(summary)
-    
+
     const text = new TextRenderable(renderer, {
       id: 'results-text',
       content: lines.join('\n'),
@@ -205,7 +211,7 @@ export function createPreviewPane(
     })
     contentBox.add(text)
   }
-  
+
   const handleKey = (key: { name: string }) => {
     if (key.name === 'return' || key.name === 'enter') {
       if (state.mode === 'diff') {
@@ -217,30 +223,36 @@ export function createPreviewPane(
       onCancel()
     }
   }
-  
+
   footer.add(helpText)
   container.add(title)
   container.add(contentBox)
   container.add(footer)
-  
-  const setDiff = (current: BranchProtection | null, proposed: BranchProtectionInput) => {
+
+  const setDiff = (
+    current: BranchProtection | null,
+    proposed: BranchProtectionInput,
+  ) => {
     state.current = current
     state.proposed = proposed
     state.mode = 'diff'
     renderDiff()
   }
-  
+
   const setResults = (results: ApplyResult[]) => {
     state.results = results
     state.mode = 'results'
     renderResults()
   }
-  
+
   return Object.assign(container, { setDiff, setResults, handleKey })
 }
 
 export type PreviewPaneWithMethods = BoxRenderable & {
-  setDiff: (current: BranchProtection | null, proposed: BranchProtectionInput) => void
+  setDiff: (
+    current: BranchProtection | null,
+    proposed: BranchProtectionInput,
+  ) => void
   setResults: (results: ApplyResult[]) => void
   handleKey: (key: { name: string }) => void
 }

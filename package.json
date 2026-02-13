@@ -1,17 +1,32 @@
 {
   "name": "repoprotector",
   "version": "0.1.0",
-  "module": "index.ts",
+  "description": "TUI for managing GitHub branch protection rules",
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OpenStaticFish/repoprotector"
+  },
+  "keywords": [
+    "github",
+    "branch-protection",
+    "cli",
+    "tui",
+    "devops"
+  ],
   "type": "module",
-  "private": true,
   "bin": {
     "repoprotector": "./index.ts"
   },
   "scripts": {
     "start": "bun run index.ts",
-    "start:local": "bun run index.ts --local"
+    "start:local": "bun run index.ts --local",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.15",
     "@types/bun": "latest"
   },
   "peerDependencies": {
@@ -19,5 +34,8 @@
   },
   "dependencies": {
     "@opentui/core": "^0.1.79"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

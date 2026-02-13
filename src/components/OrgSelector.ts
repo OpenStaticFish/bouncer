@@ -1,12 +1,12 @@
 import {
   BoxRenderable,
-  TextRenderable,
+  type CliRenderer,
   SelectRenderable,
   SelectRenderableEvents,
-  type CliRenderer,
+  TextRenderable,
 } from '@opentui/core'
-import type { Organization } from '../types'
 import { theme } from '../theme'
+import type { Organization } from '../types'
 
 export type OrgSelectedCallback = (org: Organization) => void
 
@@ -17,7 +17,7 @@ export interface OrgSelectorResult {
 
 export function createOrgSelector(
   renderer: CliRenderer,
-  onSelect: OrgSelectedCallback
+  onSelect: OrgSelectedCallback,
 ): OrgSelectorResult {
   const container = new BoxRenderable(renderer, {
     id: 'org-selector',
@@ -27,19 +27,19 @@ export function createOrgSelector(
     backgroundColor: theme.panelBg,
     padding: 1,
   })
-  
+
   const title = new TextRenderable(renderer, {
     id: 'org-title',
     content: 'Select Organization',
     fg: theme.accent,
   })
-  
+
   const helpText = new TextRenderable(renderer, {
     id: 'org-help',
     content: '↑/↓ Navigate  |  Enter Select  |  Ctrl+C Quit',
     fg: theme.textMuted,
   })
-  
+
   const select = new SelectRenderable(renderer, {
     id: 'org-select',
     width: '100%',
@@ -53,21 +53,24 @@ export function createOrgSelector(
     showDescription: true,
     wrapSelection: true,
   })
-  
+
   select.on(SelectRenderableEvents.ITEM_SELECTED, (_index, option) => {
     if (option?.value) {
       onSelect(option.value as Organization)
     }
   })
-  
+
   container.add(title)
   container.add(select)
   container.add(helpText)
-  
+
   return { container, select }
 }
 
-export function updateOrgOptions(select: SelectRenderable, orgs: Organization[]): void {
+export function updateOrgOptions(
+  select: SelectRenderable,
+  orgs: Organization[],
+): void {
   select.options = orgs.map((org) => ({
     name: org.login,
     description: org.description || 'No description',

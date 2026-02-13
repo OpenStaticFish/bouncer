@@ -105,7 +105,13 @@ export interface ApplyResult {
 }
 
 export interface AppState {
-  currentScreen: 'orgs' | 'repos' | 'branches' | 'editor' | 'templates' | 'preview'
+  currentScreen:
+    | 'orgs'
+    | 'repos'
+    | 'branches'
+    | 'editor'
+    | 'templates'
+    | 'preview'
   selectedOrg: Organization | null
   selectedRepos: Repository[]
   selectedBranch: string | null

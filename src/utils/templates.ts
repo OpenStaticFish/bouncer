@@ -1,25 +1,33 @@
+import { mkdir, readdir, readFile, unlink, writeFile } from 'fs/promises'
 import { homedir } from 'os'
 import { join } from 'path'
-import { mkdir, readdir, readFile, writeFile, unlink } from 'fs/promises'
-import type { Template, BranchProtectionInput } from '../types'
+import type { BranchProtectionInput, Template } from '../types'
 
-const CONFIG_DIR = join(homedir(), '.config', 'repoprotector')
-const TEMPLATES_DIR = join(CONFIG_DIR, 'templates')
+function getConfigDir(): string {
+  return (
+    process.env.REPOPROTECTOR_CONFIG_DIR ??
+    join(homedir(), '.config', 'repoprotector')
+  )
+}
+
+function getTemplatesDir(): string {
+  return join(getConfigDir(), 'templates')
+}
 
 async function ensureConfigDir(): Promise<void> {
-  await mkdir(TEMPLATES_DIR, { recursive: true })
+  await mkdir(getTemplatesDir(), { recursive: true })
 }
 
 export async function listTemplates(): Promise<Template[]> {
   await ensureConfigDir()
-  
-  const files = await readdir(TEMPLATES_DIR)
+
+  const files = await readdir(getTemplatesDir())
   const templates: Template[] = []
-  
+
   for (const file of files) {
     if (file.endsWith('.json')) {
       try {
-        const content = await readFile(join(TEMPLATES_DIR, file), 'utf-8')
+        const content = await readFile(join(getTemplatesDir(), file), 'utf-8')
         const template = JSON.parse(content) as Template
         templates.push(template)
       } catch {
@@ -27,15 +35,18 @@ export async function listTemplates(): Promise<Template[]> {
       }
     }
   }
-  
+
   return templates.sort((a, b) => a.name.localeCompare(b.name))
 }
 
 export async function loadTemplate(name: string): Promise<Template | null> {
   await ensureConfigDir()
-  
+
   try {
-    const content = await readFile(join(TEMPLATES_DIR, `${name}.json`), 'utf-8')
+    const content = await readFile(
+      join(getTemplatesDir(), `${name}.json`),
+      'utf-8',
+    )
     return JSON.parse(content) as Template
   } catch {
     return null
@@ -45,13 +56,13 @@ export async function loadTemplate(name: string): Promise<Template | null> {
 export async function saveTemplate(
   name: string,
   protection: BranchProtectionInput,
-  description?: string
+  description?: string,
 ): Promise<Template> {
   await ensureConfigDir()
-  
+
   const existing = await loadTemplate(name)
   const now = new Date().toISOString()
-  
+
   const template: Template = {
     name,
     description: description || existing?.description,
@@ -59,20 +70,20 @@ export async function saveTemplate(
     updated_at: now,
     protection,
   }
-  
+
   await writeFile(
-    join(TEMPLATES_DIR, `${name}.json`),
-    JSON.stringify(template, null, 2)
+    join(getTemplatesDir(), `${name}.json`),
+    JSON.stringify(template, null, 2),
   )
-  
+
   return template
 }
 
 export async function deleteTemplate(name: string): Promise<boolean> {
   await ensureConfigDir()
-  
+
   try {
-    await unlink(join(TEMPLATES_DIR, `${name}.json`))
+    await unlink(join(getTemplatesDir(), `${name}.json`))
     return true
   } catch {
     return false
@@ -130,7 +141,7 @@ export async function initializeDefaultTemplates(): Promise<void> {
     'Strict protection: 2 approvals, code owners, status checks, admin enforcement',
     'Unprotected: allows force pushes, no PR required',
   ]
-  
+
   for (let i = 0; i < defaults.length; i++) {
     const name = names[i]!
     const description = descriptions[i]!
