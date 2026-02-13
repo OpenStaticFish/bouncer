@@ -6,20 +6,20 @@ import {
   type Renderable,
   TextRenderable,
 } from '@opentui/core'
-import { getRepoWorkflows, type Workflow } from '../api/github'
+import { type CheckJob, getAvailableChecks } from '../api/github'
 import { theme } from '../theme'
 import type { BranchProtectionInput } from '../types'
 
 interface EditorField {
   key: string
   label: string
-  type: 'boolean' | 'number' | 'string' | 'workflow-select'
+  type: 'boolean' | 'number' | 'string' | 'check-select'
   value: boolean | number | string | string[]
   parent?: string
 }
 
-interface WorkflowItem {
-  workflow: Workflow
+interface CheckItem {
+  check: CheckJob
   selected: boolean
 }
 
@@ -74,11 +74,11 @@ export function createProtectionEditor(
     focusIndex: number
     inputs: Map<string, InputRenderable>
     rowIds: string[]
-    workflows: Workflow[]
+    availableChecks: CheckJob[]
     repoInfo: { owner: string; repo: string } | null
-    showWorkflowModal: boolean
-    workflowItems: WorkflowItem[]
-    workflowFocusIndex: number
+    showCheckModal: boolean
+    checkItems: CheckItem[]
+    checkFocusIndex: number
     modalRowIds: string[]
   } = {
     protection: createDefaultProtection(),
@@ -86,11 +86,11 @@ export function createProtectionEditor(
     focusIndex: 0,
     inputs: new Map(),
     rowIds: [],
-    workflows: [],
+    availableChecks: [],
     repoInfo: null,
-    showWorkflowModal: false,
-    workflowItems: [],
-    workflowFocusIndex: 0,
+    showCheckModal: false,
+    checkItems: [],
+    checkFocusIndex: 0,
     modalRowIds: [],
   }
 
@@ -202,11 +202,11 @@ export function createProtectionEditor(
           parent: 'required_status_checks',
         },
       )
-      if (state.workflows.length > 0) {
+      if (state.availableChecks.length > 0) {
         fields.push({
-          key: 'add_workflow',
-          label: '  [+] Add workflow checks',
-          type: 'workflow-select',
+          key: 'add_check',
+          label: '  [+] Add status checks from CI',
+          type: 'check-select',
           value: '',
           parent: 'required_status_checks',
         })
@@ -332,7 +332,7 @@ export function createProtectionEditor(
 
         valueDisplay = input
         state.inputs.set(field.key, input)
-      } else if (field.type === 'workflow-select') {
+      } else if (field.type === 'check-select') {
         const btn = new TextRenderable(renderer, {
           id: `value-${rowId}`,
           content: '<Enter to select>',
@@ -449,13 +449,13 @@ export function createProtectionEditor(
     }
   }
 
-  const addWorkflowChecks = (workflowNames: string[]) => {
+  const addCheckNames = (checkNames: string[]) => {
     const p = state.protection
     if (!p.required_status_checks) {
       p.required_status_checks = { strict: false, contexts: [] }
     }
 
-    for (const name of workflowNames) {
+    for (const name of checkNames) {
       if (!p.required_status_checks.contexts.includes(name)) {
         p.required_status_checks.contexts.push(name)
       }
@@ -471,11 +471,11 @@ export function createProtectionEditor(
     state.modalRowIds = []
   }
 
-  const renderWorkflowModal = () => {
+  const renderCheckModal = () => {
     clearModalRows()
 
     const modalOverlay = new BoxRenderable(renderer, {
-      id: 'workflow-modal-overlay',
+      id: 'check-modal-overlay',
       position: 'absolute',
       top: 3,
       left: 2,
@@ -490,7 +490,7 @@ export function createProtectionEditor(
 
     const modalTitle = new TextRenderable(renderer, {
       id: 'modal-title',
-      content: 'Select Workflows to Add as Status Checks',
+      content: 'Select CI Job Names to Add as Required Checks',
       fg: theme.accent,
     })
     modalOverlay.add(modalTitle)
@@ -502,7 +502,7 @@ export function createProtectionEditor(
     })
 
     const listContainer = new BoxRenderable(renderer, {
-      id: 'workflow-list',
+      id: 'check-list',
       width: '100%',
       flexGrow: 1,
       flexDirection: 'column',
@@ -510,10 +510,10 @@ export function createProtectionEditor(
       padding: 1,
     })
 
-    for (let i = 0; i < state.workflowItems.length; i++) {
-      const item = state.workflowItems[i]!
-      const isFocused = i === state.workflowFocusIndex
-      const rowId = `workflow-row-${i}`
+    for (let i = 0; i < state.checkItems.length; i++) {
+      const item = state.checkItems[i]!
+      const isFocused = i === state.checkFocusIndex
+      const rowId = `check-row-${i}`
 
       const row = new BoxRenderable(renderer, {
         id: rowId,
@@ -531,25 +531,25 @@ export function createProtectionEditor(
 
       const name = new TextRenderable(renderer, {
         id: `name-${i}`,
-        content: item.workflow.name,
+        content: item.check.name,
         fg: isFocused ? theme.accent : theme.text,
       })
 
-      const path = new TextRenderable(renderer, {
-        id: `path-${i}`,
-        content: `  ${item.workflow.path}`,
+      const workflow = new TextRenderable(renderer, {
+        id: `workflow-${i}`,
+        content: `  (${item.check.workflowName})`,
         fg: theme.textMuted,
       })
 
       row.add(checkbox)
       row.add(name)
-      row.add(path)
+      row.add(workflow)
       listContainer.add(row)
     }
 
     const countText = new TextRenderable(renderer, {
       id: 'selected-count',
-      content: `${state.workflowItems.filter((w) => w.selected).length} selected`,
+      content: `${state.checkItems.filter((c) => c.selected).length} selected`,
       fg: theme.accentPurple,
     })
 
@@ -558,67 +558,67 @@ export function createProtectionEditor(
     modalOverlay.add(modalHelp)
 
     container.add(modalOverlay)
-    state.modalRowIds.push('workflow-modal-overlay')
+    state.modalRowIds.push('check-modal-overlay')
   }
 
-  const showWorkflowModal = () => {
-    if (state.workflows.length === 0) {
+  const showCheckModal = () => {
+    if (state.availableChecks.length === 0) {
       return
     }
 
-    state.workflowItems = state.workflows.map((w) => {
+    state.checkItems = state.availableChecks.map((c) => {
       const alreadyAdded =
-        state.protection.required_status_checks?.contexts?.includes(w.name) ??
+        state.protection.required_status_checks?.contexts?.includes(c.name) ??
         false
-      return { workflow: w, selected: alreadyAdded }
+      return { check: c, selected: alreadyAdded }
     })
-    state.workflowFocusIndex = 0
-    state.showWorkflowModal = true
+    state.checkFocusIndex = 0
+    state.showCheckModal = true
 
-    renderWorkflowModal()
+    renderCheckModal()
   }
 
   const handleKey = (key: { name: string; shift: boolean; ctrl: boolean }) => {
-    if (state.showWorkflowModal) {
+    if (state.showCheckModal) {
       if (key.name === 'escape') {
-        state.showWorkflowModal = false
+        state.showCheckModal = false
         clearModalRows()
         renderFields()
         return
       }
 
       if (key.name === 'up' || key.name === 'k') {
-        state.workflowFocusIndex =
-          (state.workflowFocusIndex - 1 + state.workflowItems.length) %
-          state.workflowItems.length
-        renderWorkflowModal()
+        state.checkFocusIndex =
+          (state.checkFocusIndex - 1 + state.checkItems.length) %
+          state.checkItems.length
+        renderCheckModal()
         return
       }
 
       if (key.name === 'down' || key.name === 'j') {
-        state.workflowFocusIndex =
-          (state.workflowFocusIndex + 1) % state.workflowItems.length
-        renderWorkflowModal()
+        state.checkFocusIndex =
+          (state.checkFocusIndex + 1) % state.checkItems.length
+        renderCheckModal()
         return
       }
 
       if (key.name === 'space') {
-        const item = state.workflowItems[state.workflowFocusIndex]
+        const item = state.checkItems[state.checkFocusIndex]
         if (item) {
           item.selected = !item.selected
-          renderWorkflowModal()
+          renderCheckModal()
         }
         return
       }
 
       if (key.name === 'return' || key.name === 'enter') {
-        state.showWorkflowModal = false
+        state.showCheckModal = false
         clearModalRows()
-        const selected = state.workflowItems
-          .filter((w) => w.selected)
-          .map((w) => w.workflow.name)
+        const selected = state.checkItems
+          .filter((c) => c.selected)
+          .map((c) => c.check.name)
         if (selected.length > 0) {
-          addWorkflowChecks(selected)
+          addCheckNames(selected)
         } else {
           renderFields()
         }
@@ -651,8 +651,8 @@ export function createProtectionEditor(
         field.value = !field.value
         updateProtectionFromField(field)
         renderFields()
-      } else if (field.type === 'workflow-select') {
-        showWorkflowModal()
+      } else if (field.type === 'check-select') {
+        showCheckModal()
       }
     } else if (key.name === 'escape') {
       onCancel()
@@ -683,7 +683,7 @@ export function createProtectionEditor(
 
   const setRepoInfo = async (owner: string, repo: string) => {
     state.repoInfo = { owner, repo }
-    state.workflows = await getRepoWorkflows(owner, repo)
+    state.availableChecks = await getAvailableChecks(owner, repo)
     renderFields()
   }
 

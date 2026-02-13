@@ -262,3 +262,50 @@ export async function getRepoWorkflows(
     return []
   }
 }
+
+export interface CheckJob {
+  name: string
+  workflowName: string
+}
+
+export async function getAvailableChecks(
+  owner: string,
+  repo: string,
+): Promise<CheckJob[]> {
+  try {
+    const result = await ghApi(
+      `/repos/${owner}/${repo}/actions/runs?per_page=20&status=success`,
+    )
+    const runsData = result as {
+      workflow_runs: Array<{ id: number; name: string }>
+    } | null
+    const runs = runsData?.workflow_runs ?? []
+
+    const checkSet = new Map<string, CheckJob>()
+
+    for (const run of runs) {
+      try {
+        const jobsResult = await ghApi(
+          `/repos/${owner}/${repo}/actions/runs/${run.id}/jobs?per_page=50`,
+        )
+        const jobsData = jobsResult as { jobs: Array<{ name: string }> } | null
+        const jobs = jobsData?.jobs ?? []
+
+        for (const job of jobs) {
+          if (!checkSet.has(job.name)) {
+            checkSet.set(job.name, {
+              name: job.name,
+              workflowName: run.name,
+            })
+          }
+        }
+      } catch {}
+    }
+
+    return Array.from(checkSet.values()).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    )
+  } catch {
+    return []
+  }
+}
