@@ -1,0 +1,24 @@
+# Development files
+AGENTS.md
+CLAUDE.md
+biome.json
+tsconfig.json
+bun.lock
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+
+# CI/CD
+.github/
+
+# IDE
+.vscode/
+.idea/
+
+# Docs (keep README, LICENSE, CHANGELOG)
+docs/
+
+# Misc
+*.log
+.DS_Store

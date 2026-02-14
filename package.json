@@ -2,28 +2,45 @@
   "name": "repoprotector",
   "version": "0.1.0",
   "description": "TUI for managing GitHub branch protection rules",
-  "author": "",
+  "author": "OpenStaticFish",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OpenStaticFish/repoprotector"
+    "url": "git+https://github.com/OpenStaticFish/repoprotector.git"
+  },
+  "homepage": "https://github.com/OpenStaticFish/repoprotector#readme",
+  "bugs": {
+    "url": "https://github.com/OpenStaticFish/repoprotector/issues"
   },
   "keywords": [
     "github",
     "branch-protection",
     "cli",
     "tui",
-    "devops"
+    "devops",
+    "terminal",
+    "git"
   ],
   "type": "module",
   "bin": {
     "repoprotector": "./index.ts"
   },
+  "main": "./index.ts",
+  "files": [
+    "index.ts",
+    "src/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "start": "bun run index.ts",
     "start:local": "bun run index.ts --local",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "prepack": "bun run typecheck && bun test"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.15",
@@ -36,6 +53,6 @@
     "@opentui/core": "^0.1.79"
   },
   "engines": {
-    "node": ">=20"
+    "bun": ">=1.0.0"
   }
 }
