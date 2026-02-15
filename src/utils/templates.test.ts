@@ -10,16 +10,16 @@ import {
   saveTemplate,
 } from './templates'
 
-const TEST_DIR = join(tmpdir(), `repoprotector-test-${Date.now()}`)
+const TEST_DIR = join(tmpdir(), `bouncer-test-${Date.now()}`)
 
 describe('templates', () => {
   beforeEach(async () => {
-    process.env.REPOPROTECTOR_CONFIG_DIR = TEST_DIR
+    process.env.BOUNCER_CONFIG_DIR = TEST_DIR
     await mkdir(join(TEST_DIR, 'templates'), { recursive: true })
   })
 
   afterEach(async () => {
-    delete process.env.REPOPROTECTOR_CONFIG_DIR
+    delete process.env.BOUNCER_CONFIG_DIR
     await rm(TEST_DIR, { recursive: true, force: true })
   })
 

@@ -2,7 +2,7 @@ import { BoxRenderable, createCliRenderer, TextRenderable } from '@opentui/core'
 
 function logToFile(message: string) {
   try {
-    const logPath = `${process.env.HOME}/.config/repoprotector/apply.log`
+    const logPath = `${process.env.HOME}/.config/bouncer/apply.log`
     const timestamp = new Date().toISOString()
     const entry = `[${timestamp}] ${message}\n`
     Bun.write(logPath, entry).catch(() => {})
@@ -115,7 +115,7 @@ export async function runApp(localMode: boolean = false): Promise<void> {
 
   const headerTitle = new TextRenderable(renderer, {
     id: 'header-title',
-    content: 'RepoProtector',
+    content: 'Bouncer',
     fg: theme.accent,
   })
   const headerBreadcrumb = new TextRenderable(renderer, {

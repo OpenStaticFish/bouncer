@@ -1,16 +1,16 @@
 {
-  "name": "repoprotector",
+  "name": "bouncer",
   "version": "0.1.0",
   "description": "TUI for managing GitHub branch protection rules",
   "author": "OpenStaticFish",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OpenStaticFish/repoprotector.git"
+    "url": "git+https://github.com/OpenStaticFish/bouncer.git"
   },
-  "homepage": "https://github.com/OpenStaticFish/repoprotector#readme",
+  "homepage": "https://github.com/OpenStaticFish/bouncer#readme",
   "bugs": {
-    "url": "https://github.com/OpenStaticFish/repoprotector/issues"
+    "url": "https://github.com/OpenStaticFish/bouncer/issues"
   },
   "keywords": [
     "github",
@@ -23,7 +23,7 @@
   ],
   "type": "module",
   "bin": {
-    "repoprotector": "./cli.ts"
+    "bouncer": "./cli.ts"
   },
   "main": "./cli.ts",
   "files": [

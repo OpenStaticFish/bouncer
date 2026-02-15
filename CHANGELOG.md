@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bulk apply to multiple repositories/branches
 - Local mode (`--local`) to auto-detect current repository
 - Preview changes before applying
-- Apply logging to `~/.config/repoprotector/apply.log`
+- Apply logging to `~/.config/bouncer/apply.log`
 
 ### Technical
 
@@ -33,4 +33,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI/CD with GitHub Actions
 - 22 unit tests
 
-[0.1.0]: https://github.com/OpenStaticFish/repoprotector/releases/tag/v0.1.0
+[0.1.0]: https://github.com/OpenStaticFish/bouncer/releases/tag/v0.1.0

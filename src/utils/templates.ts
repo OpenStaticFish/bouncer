@@ -4,10 +4,7 @@ import { join } from 'path'
 import type { BranchProtectionInput, Template } from '../types'
 
 function getConfigDir(): string {
-  return (
-    process.env.REPOPROTECTOR_CONFIG_DIR ??
-    join(homedir(), '.config', 'repoprotector')
-  )
+  return process.env.BOUNCER_CONFIG_DIR ?? join(homedir(), '.config', 'bouncer')
 }
 
 function getTemplatesDir(): string {

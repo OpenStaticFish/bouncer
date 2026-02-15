@@ -1,12 +1,12 @@
-# RepoProtector
+# Bouncer
 
-[![npm version](https://img.shields.io/npm/v/repoprotector.svg)](https://www.npmjs.com/package/repoprotector)
-[![CI](https://github.com/OpenStaticFish/repoprotector/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenStaticFish/repoprotector/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/bouncer.svg)](https://www.npmjs.com/package/bouncer)
+[![CI](https://github.com/OpenStaticFish/bouncer/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenStaticFish/bouncer/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A terminal UI for managing GitHub branch protection rules across multiple repositories.
 
-![RepoProtector Screenshot](./docs/screenshot.png)
+![Bouncer Screenshot](./docs/screenshot.png)
 
 ## Features
 
@@ -26,20 +26,20 @@ A terminal UI for managing GitHub branch protection rules across multiple reposi
 
 ```bash
 # Install globally with bun
-bun install -g repoprotector
+bun install -g bouncer
 
 # Or run directly
-bunx repoprotector
+bunx bouncer
 ```
 
 ## Quick Start
 
 ```bash
 # Launch the TUI
-repoprotector
+bouncer
 
 # Skip org selection, use current repo
-repoprotector --local
+bouncer --local
 ```
 
 ### Keyboard Shortcuts
@@ -68,7 +68,7 @@ repoprotector --local
 Templates and logs are stored in:
 
 ```
-~/.config/repoprotector/
+~/.config/bouncer/
 ├── templates/        # Saved protection templates
 │   ├── basic.json
 │   ├── strict.json
@@ -101,8 +101,8 @@ Templates and logs are stored in:
 
 ```bash
 # Clone the repo
-git clone https://github.com/OpenStaticFish/repoprotector.git
-cd repoprotector
+git clone https://github.com/OpenStaticFish/bouncer.git
+cd bouncer
 
 # Install dependencies
 bun install

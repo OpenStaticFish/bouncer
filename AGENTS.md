@@ -1,8 +1,8 @@
-# RepoProtector - Agent Guidelines
+# Bouncer - Agent Guidelines
 
 ## Project Overview
 
-RepoProtector is a TUI (Terminal User Interface) application for managing GitHub branch protection rules. It uses `@opentui/core` for rendering terminal UI components and the GitHub CLI (`gh`) for API interactions.
+Bouncer is a TUI (Terminal User Interface) application for managing GitHub branch protection rules. It uses `@opentui/core` for rendering terminal UI components and the GitHub CLI (`gh`) for API interactions.
 
 ## Build/Package Commands
 
@@ -11,10 +11,10 @@ RepoProtector is a TUI (Terminal User Interface) application for managing GitHub
 bun install
 
 # Run the application
-bun run index.ts
+bun run cli.ts
 
 # Run with local repository detection (skips org selector)
-bun run index.ts --local
+bun run cli.ts --local
 # or
 bun run start:local
 
@@ -218,14 +218,14 @@ src/
 │   ├── TemplateManager.ts
 │   └── PreviewPane.ts
 └── utils/
-    └── templates.ts    # Template persistence to ~/.config/repoprotector/
+    └── templates.ts    # Template persistence to ~/.config/bouncer/
 ```
 
 ## Configuration
 
-- Config directory: `~/.config/repoprotector/`
-- Templates stored as JSON in `~/.config/repoprotector/templates/`
-- Application logs written to `~/.config/repoprotector/apply.log`
+- Config directory: `~/.config/bouncer/`
+- Templates stored as JSON in `~/.config/bouncer/templates/`
+- Application logs written to `~/.config/bouncer/apply.log`
 
 ## Testing
 
