@@ -1,6 +1,6 @@
 # Bouncer
 
-[![npm version](https://img.shields.io/npm/v/bouncer.svg)](https://www.npmjs.com/package/bouncer)
+[![npm version](https://img.shields.io/npm/v/@openstaticfish/bouncer.svg)](https://www.npmjs.com/package/@openstaticfish/bouncer)
 [![CI](https://github.com/OpenStaticFish/bouncer/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenStaticFish/bouncer/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -26,10 +26,10 @@ A terminal UI for managing GitHub branch protection rules across multiple reposi
 
 ```bash
 # Install globally with bun
-bun install -g bouncer
+bun install -g @openstaticfish/bouncer
 
 # Or run directly
-bunx bouncer
+bunx @openstaticfish/bouncer
 ```
 
 ## Quick Start

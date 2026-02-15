@@ -1,5 +1,5 @@
 {
-  "name": "bouncer",
+  "name": "@openstaticfish/bouncer",
   "version": "0.1.0",
   "description": "TUI for managing GitHub branch protection rules",
   "author": "OpenStaticFish",
